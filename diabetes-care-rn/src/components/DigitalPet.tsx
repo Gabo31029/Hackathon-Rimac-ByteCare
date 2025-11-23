@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
 import { Progress } from './ui/Progress';
 import { Card, CardContent } from './ui/Card';
@@ -12,6 +13,7 @@ interface DigitalPetProps {
 }
 
 export function DigitalPet({ boneCoins, onSpendCoins, onBack }: DigitalPetProps) {
+  const insets = useSafeAreaInsets();
   const [happiness, setHappiness] = useState(85);
   const [hunger, setHunger] = useState(60);
   const [showFeedAnimation, setShowFeedAnimation] = useState(false);
@@ -52,7 +54,7 @@ export function DigitalPet({ boneCoins, onSpendCoins, onBack }: DigitalPetProps)
   return (
     <View className="flex-1 bg-purple-50">
       {/* Header */}
-      <View className="bg-purple-600 p-4 pt-12">
+      <View className="bg-purple-600 p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={onBack}>
             <Ionicons name="chevron-back" size={24} color="white" />

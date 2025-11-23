@@ -6,9 +6,10 @@ import { cn } from '../utils/cn';
 interface BottomNavigationProps {
   currentScreen: string;
   onNavigate: (screen: string) => void;
+  bottomInset?: number;
 }
 
-export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigationProps) {
+export function BottomNavigation({ currentScreen, onNavigate, bottomInset = 0 }: BottomNavigationProps) {
   const tabs = [
     { id: 'home', label: 'Inicio', icon: 'home' as const },
     { id: 'health', label: 'Salud', icon: 'heart' as const },
@@ -18,7 +19,7 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
   ];
 
   return (
-    <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200" style={{ paddingBottom: 8 }}>
+    <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200" style={{ paddingBottom: Math.max(bottomInset, 8) }}>
       <View className="flex-row items-center justify-around py-2">
         {tabs.map((tab) => {
           const isActive = currentScreen === tab.id;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
 import { Card, CardContent } from './ui/Card';
 
@@ -69,6 +70,7 @@ const rewards: Reward[] = [
 ];
 
 export function RewardsSystem({ rimacCoins, onSpendCoins, onBack }: RewardsSystemProps) {
+  const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'health' | 'wellbeing' | 'benefits'>('all');
 
   const filteredRewards = selectedCategory === 'all'
@@ -86,7 +88,7 @@ export function RewardsSystem({ rimacCoins, onSpendCoins, onBack }: RewardsSyste
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-rimac p-4 pb-6 pt-12">
+      <View className="bg-rimac p-4 pb-6" style={{ paddingTop: Math.max(insets.top, 16) }}>
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={onBack}>
             <Ionicons name="chevron-back" size={24} color="white" />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
 import { Card, CardContent } from './ui/Card';
 import { Progress } from './ui/Progress';
@@ -59,6 +60,7 @@ const initialModules: Module[] = [
 ];
 
 export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
+  const insets = useSafeAreaInsets();
   const [modules, setModules] = useState<Module[]>(initialModules);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 
@@ -89,7 +91,7 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
   if (selectedModule) {
     return (
       <View className="flex-1 bg-gray-50">
-        <View className="bg-rimac p-4 pt-12">
+        <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
           <View className="flex-row items-center justify-between">
             <TouchableOpacity onPress={() => setSelectedModule(null)}>
               <Ionicons name="chevron-back" size={24} color="white" />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, SafeAreaView, Text, Dimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import './global.css';
 import { HomeScreen } from './src/components/HomeScreen';
 import { CheckInDaily } from './src/components/CheckInDaily';
@@ -15,7 +16,8 @@ type Screen = 'home' | 'checkin' | 'health' | 'pet' | 'support' | 'education' | 
 
 const { width } = Dimensions.get('window');
 
-export default function App() {
+function AppContent() {
+  const insets = useSafeAreaInsets();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [hasCompletedCheckIn, setHasCompletedCheckIn] = useState(false);
   const [boneCoins, setBoneCoins] = useState(145);
@@ -103,7 +105,7 @@ export default function App() {
   const showNavigation = currentScreen === 'home';
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
       <StatusBar style="auto" />
       <View className="flex-1 bg-white">
         {/* Top bar with Rimac branding */}
@@ -130,9 +132,18 @@ export default function App() {
           <BottomNavigation
             currentScreen={currentScreen}
             onNavigate={handleNavigate}
+            bottomInset={insets.bottom}
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
   );
 }
