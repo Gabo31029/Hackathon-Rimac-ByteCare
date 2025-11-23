@@ -12,6 +12,20 @@ import { EducationModule } from './src/components/EducationModule';
 import { RewardsSystem } from './src/components/RewardsSystem';
 import { BottomNavigation } from './src/components/BottomNavigation';
 
+interface FoodRecommendation {
+  id: string;
+  commonFood: string;
+  swapFor: string;
+  reason: string;
+  portion: string;
+  glycemicLoad: 'baja' | 'media';
+}
+
+interface SharedFoodRecommendation extends FoodRecommendation {
+  sentAt: string;
+  sentTo: string[];
+}
+
 type Screen = 'home' | 'checkin' | 'health' | 'pet' | 'support' | 'education' | 'rewards';
 
 function AppContent() {
@@ -23,6 +37,8 @@ function AppContent() {
   const [rimacCoins, setRimacCoins] = useState(28);
   const [streak, setStreak] = useState(7);
   const [completedLessons, setCompletedLessons] = useState(3); // Lecciones iniciales completadas
+  const [sharedFoodTips, setSharedFoodTips] = useState<SharedFoodRecommendation[]>([]);
+  const supportRecipients = ['Carlos Fernandez', 'Ana Fernandez'];
 
   const handleCompleteCheckIn = (coins: number) => {
     setHasCompletedCheckIn(true);
@@ -43,6 +59,31 @@ function AppContent() {
       setHealthInitialTab(undefined);
     }
     setCurrentScreen(screen as Screen);
+  };
+
+  const handleShareFoodTips = (tips: FoodRecommendation[]) => {
+    const sentAt = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    setSharedFoodTips(prev => {
+      const updated = [...prev];
+
+      tips.forEach((tip) => {
+        const existingIndex = updated.findIndex(item => item.id === tip.id);
+        const entry: SharedFoodRecommendation = {
+          ...tip,
+          sentAt,
+          sentTo: supportRecipients,
+        };
+
+        if (existingIndex >= 0) {
+          updated[existingIndex] = entry;
+        } else {
+          updated.push(entry);
+        }
+      });
+
+      return updated;
+    });
   };
 
   const renderScreen = () => {
@@ -71,6 +112,8 @@ function AppContent() {
             onBack={() => setCurrentScreen('home')}
             onEarnCoins={handleEarnCoins}
             initialTab={healthInitialTab}
+            onShareFoodTips={handleShareFoodTips}
+            sharedFoodTips={sharedFoodTips}
           />
         );
       case 'pet':
@@ -88,6 +131,7 @@ function AppContent() {
           <SupportNetwork
             onBack={() => setCurrentScreen('home')}
             onEarnCoins={handleEarnCoins}
+            sharedFoodTips={sharedFoodTips}
           />
         );
       case 'education':

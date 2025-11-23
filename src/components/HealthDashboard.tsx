@@ -7,10 +7,26 @@ import { cn } from '../utils/cn';
 import { Progress } from './ui/Progress';
 import { Card, CardContent } from './ui/Card';
 
+interface FoodRecommendation {
+  id: string;
+  commonFood: string;
+  swapFor: string;
+  reason: string;
+  portion: string;
+  glycemicLoad: 'baja' | 'media';
+}
+
+interface SharedFoodRecommendation extends FoodRecommendation {
+  sentAt: string;
+  sentTo: string[];
+}
+
 interface HealthDashboardProps {
   onBack: () => void;
   onEarnCoins: (bone: number, rimac: number) => void;
   initialTab?: 'overview' | 'challenges' | 'medication';
+  onShareFoodTips: (tips: FoodRecommendation[]) => void;
+  sharedFoodTips: SharedFoodRecommendation[];
 }
 
 interface GlucoseData {
@@ -39,7 +55,7 @@ interface Medication {
   isLate?: boolean;
 }
 
-export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashboardProps) {
+export function HealthDashboard({ onBack, onEarnCoins, initialTab, onShareFoodTips, sharedFoodTips }: HealthDashboardProps) {
   const insets = useSafeAreaInsets();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'challenges' | 'medication'>(initialTab || 'overview');
   const [challenges, setChallenges] = useState([
@@ -96,6 +112,41 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
     { name: 'Sueño anoche', current: 7.2, unit: 'h', icon: 'moon', change: 0.3, changeType: 'up' },
   ];
 
+    const foodRecommendations: FoodRecommendation[] = [
+    {
+      id: 'swap-01',
+      commonFood: 'Arroz blanco',
+      swapFor: 'Quinua o arroz de coliflor',
+      reason: 'Menor carga glucemica y mas fibra para evitar picos.',
+      portion: 'Porcion: 1 taza cocida de quinua o 1/2 taza de coliflor.',
+      glycemicLoad: 'baja',
+    },
+    {
+      id: 'swap-02',
+      commonFood: 'Pan blanco o bollos',
+      swapFor: 'Pan 100% integral o de centeno',
+      reason: 'Aporta fibra y saciedad, ayuda a estabilizar glucosa.',
+      portion: 'Porcion: 1 rebanada gruesa o 2 finas en desayuno.',
+      glycemicLoad: 'baja',
+    },
+    {
+      id: 'swap-03',
+      commonFood: 'Gaseosa o jugos azucarados',
+      swapFor: 'Agua mineral con rodajas de fruta o infusion fria',
+      reason: 'Evita azucares rapidos y mantiene hidratacion.',
+      portion: 'Porcion: 1 vaso grande sin azucar a lo largo del dia.',
+      glycemicLoad: 'baja',
+    },
+    {
+      id: 'swap-04',
+      commonFood: 'Postres con azucar',
+      swapFor: 'Yogurt griego sin azucar + frutos rojos',
+      reason: 'Proteina y fibra que moderan el impacto glucemico.',
+      portion: 'Porcion: 3/4 taza de yogurt + 1/4 taza de frutos rojos.',
+      glycemicLoad: 'media',
+    },
+  ];
+
   const adherenceRate = 95;
   const emotionalState = 'Tranquilo';
   const stressLevel = 25; // Bajo
@@ -104,7 +155,8 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
   const [showAddMeasureModal, setShowAddMeasureModal] = useState(false);
   const [newMeasureType, setNewMeasureType] = useState<'glucose' | 'pressure' | 'weight'>('glucose');
   const [newMeasureValue, setNewMeasureValue] = useState('');
-  
+  const [lastFoodShareAt, setLastFoodShareAt] = useState<string | null>(null);
+
   const handleAddMeasure = () => {
     setShowAddMeasureModal(true);
   };
@@ -132,6 +184,16 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
     
     setNewMeasureValue('');
     setShowAddMeasureModal(false);
+  };
+
+  const handleShareFoodAlternatives = () => {
+    onShareFoodTips(foodRecommendations);
+    const timestamp = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    setLastFoodShareAt(timestamp);
+    Alert.alert(
+      'Recomendaciones enviadas',
+      'Tu red de apoyo recibira estas alternativas para cuidar tus niveles de glucosa.'
+    );
   };
 
   const handleCompleteChallenge = (id: number) => {
@@ -231,6 +293,8 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
       </View>
     );
   };
+
+  const lastSharedFoodTip = sharedFoodTips[sharedFoodTips.length - 1];
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -377,6 +441,64 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
                   <Text className="text-sm text-gray-700 font-semibold">Bajo</Text>
                 </View>
               </View>
+            </View>
+
+            {/* Intercambios de comida para diabetes */}
+            <View className="bg-white border border-gray-200 rounded-2xl p-4 mb-4">
+              <View className="flex-row items-start justify-between mb-3">
+                <View className="flex-1 pr-3">
+                  <Text className="text-gray-900 font-semibold text-lg">Intercambios de comida</Text>
+                  <Text className="text-sm text-gray-700">
+                    Alternativas bajas en azucar pensadas para evitar picos de glucosa.
+                  </Text>
+                </View>
+                <View className="w-10 h-10 bg-rose-50 rounded-full items-center justify-center">
+                  <Ionicons name="restaurant" size={20} color="#EC0000" />
+                </View>
+              </View>
+
+              <View className="gap-3 mb-3">
+                {foodRecommendations.map((tip) => (
+                  <View key={tip.id} className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                    <View className="flex-row items-center justify-between mb-1">
+                      <Text className="text-gray-900 font-semibold flex-1 pr-2">
+                        {tip.commonFood} ➡️ {tip.swapFor}
+                      </Text>
+                      <Text
+                        className={cn(
+                          'text-xs font-semibold',
+                          tip.glycemicLoad === 'baja' ? 'text-emerald-700' : 'text-amber-700'
+                        )}
+                      >
+                        {tip.glycemicLoad === 'baja' ? 'Carga baja' : 'Carga media'}
+                      </Text>
+                    </View>
+                    <Text className="text-sm text-gray-700 mb-1">{tip.reason}</Text>
+                    <Text className="text-xs text-gray-500">{tip.portion}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <TouchableOpacity
+                onPress={handleShareFoodAlternatives}
+                activeOpacity={0.8}
+                className="bg-rimac rounded-xl py-3 px-4 flex-row items-center justify-between"
+              >
+                <View className="flex-1">
+                  <Text className="text-white font-semibold">Compartir con red de apoyo</Text>
+                  <Text className="text-white/80 text-xs">
+                    Carlos y Ana recibiran estas ideas
+                  </Text>
+                </View>
+                <Ionicons name="send" size={18} color="white" />
+              </TouchableOpacity>
+              <Text className="text-xs text-gray-500 mt-2">
+                {lastFoodShareAt
+                  ? `Ultimo envio: ${lastFoodShareAt}`
+                  : lastSharedFoodTip
+                  ? `Ultimo envio: ${lastSharedFoodTip.sentAt}`
+                  : 'Comparte para que tu familia sepa que preparar.'}
+              </Text>
             </View>
           </>
         )}

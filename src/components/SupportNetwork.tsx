@@ -6,9 +6,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
 import { Card, CardContent } from './ui/Card';
 
+interface SharedFoodRecommendation {
+  id: string;
+  commonFood: string;
+  swapFor: string;
+  reason: string;
+  portion: string;
+  glycemicLoad: 'baja' | 'media';
+  sentAt: string;
+  sentTo: string[];
+}
+
 interface SupportNetworkProps {
   onBack: () => void;
   onEarnCoins: (bone: number, rimac: number) => void;
+  sharedFoodTips: SharedFoodRecommendation[];
 }
 
 interface FamilyMember {
@@ -39,7 +51,7 @@ interface AlertItem {
   color: string;
 }
 
-export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
+export function SupportNetwork({ onBack, onEarnCoins, sharedFoodTips }: SupportNetworkProps) {
   const insets = useSafeAreaInsets();
   const [selectedTab, setSelectedTab] = useState<'family' | 'professional' | 'alerts' | 'forum'>('family');
   const [showAddFamily, setShowAddFamily] = useState(false);
@@ -188,6 +200,8 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     },
   ]);
 
+  const recentFoodTips = [...sharedFoodTips].slice(-3).reverse();
+
   const handleToggleAlert = (alertId: string) => {
     setAlerts(prev =>
       prev.map(alert =>
@@ -321,6 +335,47 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                 </View>
               </View>
             </View>
+
+            {sharedFoodTips.length > 0 && (
+              <>
+                <Text className="mb-3 text-gray-900 font-semibold text-lg">Recomendaciones de comida enviadas</Text>
+                <Card className="mb-4">
+                  <CardContent>
+                    <View className="flex-row items-start gap-3 mb-3">
+                      <View className="w-12 h-12 bg-emerald-100 rounded-full items-center justify-center">
+                        <Ionicons name="nutrition" size={24} color="#059669" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 font-semibold">Alternativas amigables con glucosa</Text>
+                        <Text className="text-sm text-gray-700">
+                          Compartidas con {sharedFoodTips[sharedFoodTips.length - 1]?.sentTo.join(' y ') || 'tu familia'}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="gap-3">
+                      {recentFoodTips.map((tip) => (
+                        <View key={`${tip.id}-${tip.sentAt}`} className="border-t border-gray-200 pt-3">
+                          <Text className="text-gray-900 font-semibold">
+                            {tip.commonFood} ➡️ {tip.swapFor}
+                          </Text>
+                          <Text className="text-xs text-gray-700 mt-1">{tip.reason}</Text>
+                          <Text className="text-xs text-gray-500 mt-1">
+                            Compartido a las {tip.sentAt}. Destinatarios: {tip.sentTo.join(', ')}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    <View className="mt-3 bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                      <Text className="text-sm text-emerald-700">
+                        Usa estas ideas para ofrecer opciones seguras y apoyar los cuidados diarios.
+                      </Text>
+                    </View>
+                  </CardContent>
+                </Card>
+              </>
+            )}
 
             {/* Familiares conectados */}
             <Text className="mb-4 text-gray-900 font-bold text-xl">Familiares conectados</Text>
