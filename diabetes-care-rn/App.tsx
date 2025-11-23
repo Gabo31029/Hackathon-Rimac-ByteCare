@@ -22,6 +22,7 @@ function AppContent() {
   const [boneCoins, setBoneCoins] = useState(145);
   const [rimacCoins, setRimacCoins] = useState(28);
   const [streak, setStreak] = useState(7);
+  const [completedLessons, setCompletedLessons] = useState(3); // Lecciones iniciales completadas
 
   const handleCompleteCheckIn = (coins: number) => {
     setHasCompletedCheckIn(true);
@@ -78,6 +79,8 @@ function AppContent() {
             boneCoins={boneCoins}
             onSpendCoins={(amount) => setBoneCoins(prev => prev - amount)}
             onBack={() => setCurrentScreen('home')}
+            onEarnRimacCoins={(amount) => setRimacCoins(prev => prev + amount)}
+            completedLessons={completedLessons}
           />
         );
       case 'support':
@@ -91,7 +94,13 @@ function AppContent() {
         return (
           <EducationModule
             onBack={() => setCurrentScreen('home')}
-            onEarnCoins={handleEarnCoins}
+            onEarnCoins={(bone, rimac) => {
+              handleEarnCoins(bone, rimac);
+              // Incrementar contador de lecciones cuando se completa una
+              if (bone > 0) {
+                setCompletedLessons(prev => prev + 1);
+              }
+            }}
           />
         );
       case 'rewards':

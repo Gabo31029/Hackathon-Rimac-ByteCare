@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +10,8 @@ interface DigitalPetProps {
   boneCoins: number;
   onSpendCoins: (amount: number) => void;
   onBack: () => void;
+  onEarnRimacCoins?: (amount: number) => void;
+  completedLessons?: number; // Número de lecciones completadas
 }
 
 interface Accessory {
@@ -44,19 +46,105 @@ const ACCESSORIES: Accessory[] = [
   },
 ];
 
-export function DigitalPet({ boneCoins, onSpendCoins, onBack }: DigitalPetProps) {
+interface RankingUser {
+  id: string;
+  name: string;
+  petName: string;
+  growth: number; // 0-100
+  wisdom: number; // 0-100
+  accessories: number; // 0-100
+  average: number;
+  isCurrentUser?: boolean;
+}
+
+export function DigitalPet({ boneCoins, onSpendCoins, onBack, onEarnRimacCoins, completedLessons = 0 }: DigitalPetProps) {
   const insets = useSafeAreaInsets();
   const [happiness, setHappiness] = useState(85);
   const [hunger, setHunger] = useState(60);
   const [showFeedAnimation, setShowFeedAnimation] = useState(false);
   const [purchasedAccessories, setPurchasedAccessories] = useState<string[]>([]);
   const [equippedAccessory, setEquippedAccessory] = useState<string | null>(null);
+  
+  // Tracking para ranking
+  const [growth, setGrowth] = useState(45); // Crecimiento inicial
+  const [wisdom, setWisdom] = useState(Math.min(100, completedLessons * 10)); // Basado en lecciones completadas
+  const [lastMonthChecked, setLastMonthChecked] = useState<string>('');
+  const [hasReceivedMonthlyReward, setHasReceivedMonthlyReward] = useState(false);
+
+  // Efecto para actualizar sabiduría cuando cambian las lecciones completadas
+  useEffect(() => {
+    setWisdom(Math.min(100, completedLessons * 10));
+  }, [completedLessons]);
+
+  // Verificar si es un nuevo mes y resetear recompensa mensual
+  useEffect(() => {
+    const currentMonth = new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+    if (lastMonthChecked !== currentMonth) {
+      setLastMonthChecked(currentMonth);
+      setHasReceivedMonthlyReward(false);
+    }
+  }, [lastMonthChecked]);
+
+  // Calcular promedio para ranking
+  const calculateAverage = (growth: number, wisdom: number, accessories: number) => {
+    return Math.round((growth + wisdom + accessories) / 3);
+  };
+
+  // Calcular métricas del usuario actual
+  const currentUserAccessories = useMemo(() => Math.min(100, purchasedAccessories.length * 25), [purchasedAccessories.length]);
+  const currentUserAverage = useMemo(() => calculateAverage(growth, wisdom, currentUserAccessories), [growth, wisdom, currentUserAccessories]);
+
+  // Generar ranking simulado con useMemo
+  const ranking = useMemo((): RankingUser[] => {
+    const otherUsers: RankingUser[] = [
+      { id: '2', name: 'María', petName: 'Luna', growth: 78, wisdom: 85, accessories: 75, average: 79 },
+      { id: '3', name: 'Carlos', petName: 'Max', growth: 65, wisdom: 70, accessories: 60, average: 65 },
+      { id: '4', name: 'Ana', petName: 'Bella', growth: 90, wisdom: 88, accessories: 85, average: 88 },
+      { id: '5', name: 'Luis', petName: 'Rocky', growth: 55, wisdom: 60, accessories: 50, average: 55 },
+      { id: '6', name: 'Sofía', petName: 'Coco', growth: 72, wisdom: 75, accessories: 70, average: 72 },
+    ];
+
+    const currentUser: RankingUser = {
+      id: '1',
+      name: 'Tú',
+      petName: 'Pancho',
+      growth,
+      wisdom,
+      accessories: currentUserAccessories,
+      average: currentUserAverage,
+      isCurrentUser: true,
+    };
+
+    const allUsers = [...otherUsers, currentUser];
+    return allUsers.sort((a, b) => b.average - a.average);
+  }, [growth, wisdom, currentUserAccessories, currentUserAverage]);
+
+  const currentUserRank = useMemo(() => ranking.findIndex(u => u.isCurrentUser) + 1, [ranking]);
+
+  // Verificar si el usuario ganó el ranking mensual y otorgar recompensa
+  useEffect(() => {
+    if (ranking.length > 0 && ranking[0].isCurrentUser && !hasReceivedMonthlyReward && onEarnRimacCoins) {
+      // Pequeño delay para evitar múltiples ejecuciones
+      const timer = setTimeout(() => {
+        onEarnRimacCoins(10);
+        setHasReceivedMonthlyReward(true);
+        Alert.alert(
+          '🎉 ¡Felicidades!',
+          'Has ganado el ranking mensual. Has recibido 10 monedas Rimac como recompensa.',
+          [{ text: '¡Genial!' }]
+        );
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [ranking, hasReceivedMonthlyReward, onEarnRimacCoins]);
 
   const handleFeed = () => {
     if (boneCoins >= 5 && hunger < 100) {
       onSpendCoins(5);
       setHunger(Math.min(100, hunger + 20));
       setHappiness(Math.min(100, happiness + 5));
+      // Incrementar crecimiento cuando alimentas
+      setGrowth(prev => Math.min(100, prev + 2));
       setShowFeedAnimation(true);
       setTimeout(() => setShowFeedAnimation(false), 2000);
     }
@@ -87,6 +175,7 @@ export function DigitalPet({ boneCoins, onSpendCoins, onBack }: DigitalPetProps)
     onSpendCoins(accessory.price);
     setPurchasedAccessories((prev) => [...prev, accessory.id]);
     setEquippedAccessory(accessory.id);
+    // Los accesorios ya se cuentan en el cálculo del ranking
   };
 
   const getHappinessEmoji = () => {
@@ -287,6 +376,173 @@ export function DigitalPet({ boneCoins, onSpendCoins, onBack }: DigitalPetProps)
               );
             })}
           </View>
+        </View>
+
+        {/* Logros de Pancho */}
+        <View className="mt-6">
+          <Text className="text-gray-900 font-semibold text-lg mb-3">Logros de Pancho</Text>
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <View className="gap-4">
+                <View>
+                  <View className="flex-row items-center justify-between mb-2">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-xl">🌱</Text>
+                      <Text className="text-sm text-gray-700 font-semibold">Crecimiento</Text>
+                    </View>
+                    <Text className="text-sm text-gray-700 font-semibold">{growth}%</Text>
+                  </View>
+                  <Progress value={growth} barClassName="bg-green-500" />
+                  <Text className="text-xs text-gray-500 mt-1">
+                    Alimenta a Pancho para que crezca más fuerte
+                  </Text>
+                </View>
+
+                <View>
+                  <View className="flex-row items-center justify-between mb-2">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-xl">📚</Text>
+                      <Text className="text-sm text-gray-700 font-semibold">Sabiduría</Text>
+                    </View>
+                    <Text className="text-sm text-gray-700 font-semibold">{wisdom}%</Text>
+                  </View>
+                  <Progress value={wisdom} barClassName="bg-blue-500" />
+                  <Text className="text-xs text-gray-500 mt-1">
+                    Completa lecciones educativas para aumentar la sabiduría
+                  </Text>
+                </View>
+
+                <View>
+                  <View className="flex-row items-center justify-between mb-2">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-xl">✨</Text>
+                      <Text className="text-sm text-gray-700 font-semibold">Accesorios</Text>
+                    </View>
+                    <Text className="text-sm text-gray-700 font-semibold">
+                      {Math.min(100, purchasedAccessories.length * 25)}%
+                    </Text>
+                  </View>
+                  <Progress value={Math.min(100, purchasedAccessories.length * 25)} barClassName="bg-purple-500" />
+                  <Text className="text-xs text-gray-500 mt-1">
+                    Compra accesorios con tus Bone Coins para personalizar a Pancho
+                  </Text>
+                </View>
+
+                <View className="mt-2 p-3 bg-purple-50 rounded-xl">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-sm text-purple-700 font-semibold">Promedio Total</Text>
+                    <Text className="text-lg text-purple-900 font-bold">
+                      {currentUserAverage}%
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </CardContent>
+          </Card>
+        </View>
+
+        {/* Ranking Mensual */}
+        <View className="mt-6 mb-6">
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-gray-900 font-semibold text-lg">Ranking Mensual</Text>
+            <View className="flex-row items-center gap-1 bg-amber-100 px-3 py-1 rounded-full">
+              <Ionicons name="trophy" size={16} color="#F59E0B" />
+              <Text className="text-xs text-amber-700 font-semibold">
+                {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
+              </Text>
+            </View>
+          </View>
+          <Text className="text-sm text-gray-600 mb-3">
+            Compite con otros usuarios. El ganador mensual recibe 10 monedas Rimac 🏆
+          </Text>
+          
+          <Card>
+            <CardContent className="p-4">
+              <View className="gap-2">
+                {ranking.slice(0, 5).map((user, index) => {
+                  const isTopThree = index < 3;
+                  const medalEmojis = ['🥇', '🥈', '🥉'];
+                  
+                  return (
+                    <View
+                      key={user.id}
+                      className={cn(
+                        'flex-row items-center justify-between p-3 rounded-xl',
+                        user.isCurrentUser
+                          ? 'bg-purple-100 border-2 border-purple-400'
+                          : 'bg-white border border-gray-200'
+                      )}
+                    >
+                      <View className="flex-row items-center gap-3 flex-1">
+                        <View className="w-10 items-center justify-center">
+                          {isTopThree ? (
+                            <Text className="text-2xl">{medalEmojis[index]}</Text>
+                          ) : (
+                            <Text className="text-gray-600 font-bold text-sm">#{index + 1}</Text>
+                          )}
+                        </View>
+                        <View className="flex-1">
+                          <View className="flex-row items-center gap-2">
+                            <Text className="text-gray-900 font-semibold">
+                              {user.name}
+                            </Text>
+                            {user.isCurrentUser && (
+                              <View className="bg-purple-600 px-2 py-0.5 rounded-full">
+                                <Text className="text-white text-xs font-semibold">TÚ</Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text className="text-xs text-gray-500">{user.petName}</Text>
+                        </View>
+                      </View>
+                      <View className="items-end">
+                        <Text className="text-gray-900 font-bold text-base">{user.average}%</Text>
+                        <Text className="text-xs text-gray-500">Promedio</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {currentUserRank > 5 && (
+                <View className="mt-2 pt-2 border-t border-gray-200">
+                  <View className="flex-row items-center justify-between p-3 rounded-xl bg-purple-100 border-2 border-purple-400">
+                    <View className="flex-row items-center gap-3 flex-1">
+                      <View className="w-10 items-center justify-center">
+                        <Text className="text-gray-600 font-bold text-sm">#{currentUserRank}</Text>
+                      </View>
+                      <View className="flex-1">
+                        <View className="flex-row items-center gap-2">
+                          <Text className="text-gray-900 font-semibold">Tú</Text>
+                          <View className="bg-purple-600 px-2 py-0.5 rounded-full">
+                            <Text className="text-white text-xs font-semibold">TÚ</Text>
+                          </View>
+                        </View>
+                        <Text className="text-xs text-gray-500">Pancho</Text>
+                      </View>
+                    </View>
+                    <View className="items-end">
+                      <Text className="text-gray-900 font-bold text-base">
+                        {currentUserAverage}%
+                      </Text>
+                      <Text className="text-xs text-gray-500">Promedio</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {ranking[0].isCurrentUser && hasReceivedMonthlyReward && (
+                <View className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                  <View className="flex-row items-center gap-2">
+                    <Ionicons name="trophy" size={20} color="#F59E0B" />
+                    <Text className="text-sm text-amber-800 font-semibold">
+                      ¡Eres el ganador del mes! Has recibido 10 monedas Rimac 🎉
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </CardContent>
+          </Card>
         </View>
       </ScrollView>
     </View>
