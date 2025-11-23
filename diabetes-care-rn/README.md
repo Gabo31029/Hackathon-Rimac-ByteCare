@@ -7,7 +7,7 @@ Aplicacion movil creada con Expo 54 y React Native 0.81 pensada para acompanhar 
 - Flujo central de check-in guiado que registra energia, glucosa, estado animico y rutina.
 - Dashboard de salud con metricas, retos, adherencia a medicacion y seguimiento de habitos.
 - Sistema de monedas dual (Bone y Rimac) que incentiva habitos saludables y canjea premios.
-- Mascota virtual "Pancho" que responde al cuidado, permite comprar accesorios con Bone Coins y personalizar su apariencia.
+- Mascota virtual "Pancho" que responde al cuidado y consumo de monedas y ahora permite personalizar accesorios.
 - Red de apoyo (familia/equipo medico) y micro-lecciones de educacion en diabetes.
 - Estilos construidos con NativeWind (Tailwind CSS para RN) y componentes reutilizables (Button, Card, Progress).
 
@@ -74,7 +74,7 @@ diabetes-care-rn/
 - **HomeScreen**: dashboard diario que muestra progreso, check-in, acceso a mascota, modulos de salud, glicemia y accesos rapidos.
 - **CheckInDaily**: cuestionario de 4 pasos con barra de progreso que recompensa con 10 Bone Coins y actualiza la racha.
 - **HealthDashboard**: metricas detalladas, graficos, retos diarios, adherencia a medicacion y habitos (ganancia de Bone/Rimac Coins).
-- **DigitalPet**: mascota Pancho con stats de felicidad/energia; permite gastar Bone Coins en actividades, comprar accesorios y personalizar la apariencia.
+- **DigitalPet**: mascota Pancho con stats de felicidad/energia; permite gastar Bone Coins en actividades, comprar accesorios y equiparlos para personalizar su estilo.
 - **SupportNetwork**: contactos de apoyo, chat rapido, recordatorios y eventos compartidos.
 - **EducationModule**: cursos cortos, trivias y contenido educativo con recompensas.
 - **RewardsSystem**: catalogo de premios Rimac, filtros y flujo para canjear Rimac Coins.
