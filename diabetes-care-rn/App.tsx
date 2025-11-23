@@ -119,21 +119,39 @@ function AppContent() {
   // Mostrar navegación en todas las vistas principales, no en vistas secundarias
   const showNavigation = ['home', 'health', 'support', 'education', 'rewards'].includes(currentScreen);
 
+  // Determinar el color del status bar según la pantalla
+  const getStatusBarColor = () => {
+    switch (currentScreen) {
+      case 'home':
+        return { style: 'light' as const, backgroundColor: '#EC0000' };
+      case 'pet':
+        return { style: 'light' as const, backgroundColor: '#9333EA' };
+      case 'health':
+      case 'support':
+      case 'rewards':
+      case 'education':
+        return { style: 'light' as const, backgroundColor: '#EC0000' };
+      default:
+        return { style: 'auto' as const, backgroundColor: '#FFFFFF' };
+    }
+  };
+
+  const statusBarConfig = getStatusBarColor();
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
-      <StatusBar style="auto" />
+    <SafeAreaView 
+      className="flex-1" 
+      style={{ backgroundColor: statusBarConfig.backgroundColor }}
+      edges={['top']}
+    >
+      <StatusBar style={statusBarConfig.style} backgroundColor={statusBarConfig.backgroundColor} />
       <View className="flex-1 bg-white">
         {/* Top bar with Rimac branding */}
         {currentScreen === 'home' && (
-          <View className="bg-rimac px-4 pt-2 pb-6">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2">
-                <View className="w-8 h-8 bg-white rounded-full items-center justify-center">
-                  <Text className="text-rimac text-sm font-bold">R</Text>
-                </View>
-                <Text className="text-white text-base font-semibold">Rimac Seguros</Text>
-              </View>
-            </View>
+          <View className="bg-rimac px-4 pb-6" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
+            <Text className="text-white text-2xl font-bold" style={{ fontFamily: 'System', letterSpacing: 1 }}>
+              RIMAC
+            </Text>
           </View>
         )}
 

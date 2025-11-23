@@ -1,10 +1,13 @@
 ﻿import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
 import { Progress } from './ui/Progress';
 import { Card, CardContent } from './ui/Card';
+import { Coin } from './ui/Coin';
+import { PetImage } from './PetImage';
 
 interface DigitalPetProps {
   boneCoins: number;
@@ -196,20 +199,25 @@ export function DigitalPet({ boneCoins, onSpendCoins, onBack, onEarnRimacCoins, 
 
   return (
     <View className="flex-1 bg-purple-50">
-      <View className="bg-purple-600 p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
+      <StatusBar style="light" backgroundColor="#9333EA" />
+      <View className="bg-purple-600 p-4" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={onBack}>
             <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
           <Text className="text-white text-lg font-semibold">Tu Mascota</Text>
           <View className="flex-row items-center gap-2 bg-white/20 backdrop-blur px-3 py-1.5 rounded-full">
-            <Text className="text-lg">🦴</Text>
+            <Coin type="bone" size={18} />
             <Text className="text-white font-semibold">{boneCoins}</Text>
           </View>
         </View>
       </View>
 
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        className="p-4" 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         <Card className="mb-4 relative overflow-hidden">
           <View className="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full -mr-16 -mt-16" />
           <View className="absolute bottom-0 left-0 w-24 h-24 bg-pink-100 rounded-full -ml-12 -mb-12" />
@@ -225,21 +233,20 @@ export function DigitalPet({ boneCoins, onSpendCoins, onBack, onEarnRimacCoins, 
             </View>
 
             <View className="items-center mb-4">
-              <View className="w-48 h-48 bg-amber-200 rounded-3xl items-center justify-center mb-4 relative">
+              <View className="w-64 h-64 bg-amber-200 rounded-3xl items-center justify-center mb-4 relative overflow-hidden">
                 {equippedAccessoryData && (
-                  <View className="absolute top-3 right-3 bg-white/90 rounded-full px-3 py-1 flex-row items-center gap-1">
+                  <View className="absolute top-3 right-3 bg-white/90 rounded-full px-3 py-1 flex-row items-center gap-1 z-20">
                     <Text className="text-lg">{equippedAccessoryData.emoji}</Text>
                     <Text className="text-xs text-purple-700 font-semibold">{equippedAccessoryData.name}</Text>
                   </View>
                 )}
                 {showFeedAnimation && (
-                  <View className="absolute inset-0 items-center justify-center">
+                  <View className="absolute inset-0 items-center justify-center z-10">
                     <Ionicons name="sparkles" size={48} color="#FCD34D" />
                   </View>
                 )}
-                <Text className="text-8xl">🐾</Text>
+                <PetImage size={200} />
               </View>
-              <Text className="text-4xl mb-2">{getHappinessEmoji()}</Text>
             </View>
 
             <View className="gap-4 mt-6">

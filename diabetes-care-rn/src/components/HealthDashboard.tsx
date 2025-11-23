@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Modal } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
@@ -233,8 +234,9 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
 
   return (
     <View className="flex-1 bg-gray-50">
+      <StatusBar style="light" backgroundColor="#EC0000" />
       {/* Header */}
-      <View className="bg-rimac p-4 pb-6" style={{ paddingTop: Math.max(insets.top, 16) }}>
+      <View className="bg-rimac p-4 pb-6" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={onBack}>
             <Ionicons name="chevron-back" size={24} color="white" />
@@ -269,7 +271,11 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
         </View>
       </View>
 
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        className="p-4" 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {selectedTab === 'overview' && (
           <>
             {/* Glucosa card destacada */}
