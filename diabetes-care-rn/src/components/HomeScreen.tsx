@@ -12,7 +12,7 @@ interface HomeScreenProps {
   rimacCoins: number;
   streak: number;
   onStartCheckIn: () => void;
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: string, healthTab?: 'overview' | 'challenges' | 'medication') => void;
 }
 
 export function HomeScreen({
@@ -27,21 +27,19 @@ export function HomeScreen({
     <ScrollView className="flex-1 pb-24" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
       {/* Hero section with curved bottom */}
       <View className="bg-rimac pt-4 pb-8 px-4 rounded-b-3xl">
-        <Text className="mt-4 mb-1 text-white text-xl font-semibold">
-          Hola, María 👋
-        </Text>
-        <Text className="text-white/90 text-sm">¿Cómo va tu día?</Text>
-
-        {/* Racha de check-ins */}
-        <View className="bg-white/10 backdrop-blur rounded-2xl p-4 flex-row items-center gap-3 mt-6">
-          <View className="w-12 h-12 bg-orange-400 rounded-full items-center justify-center">
-            <Ionicons name="flame" size={28} color="white" />
+        <View className="flex-row items-center justify-between mt-4 mb-1">
+          <View className="flex-1">
+            <Text className="text-white text-xl font-semibold">
+              Hola, María 👋
+            </Text>
+            <Text className="text-white/90 text-sm">¿Cómo va tu día?</Text>
           </View>
-          <View>
-            <Text className="text-xs opacity-90 text-white">Racha de check-in</Text>
-            <View className="flex-row items-baseline gap-2">
-              <Text className="text-2xl text-white font-bold">{streak}</Text>
-              <Text className="text-sm opacity-90 text-white">días consecutivos</Text>
+          {/* Racha de check-ins - más pequeña y al costado */}
+          <View className="bg-white/10 backdrop-blur rounded-xl px-3 py-2 flex-row items-center gap-2">
+            <Ionicons name="flame" size={16} color="#FCD34D" />
+            <View className="items-center">
+              <Text className="text-white text-lg font-bold">{streak}</Text>
+              <Text className="text-white/80 text-xs">días</Text>
             </View>
           </View>
         </View>
@@ -143,7 +141,7 @@ export function HomeScreen({
         <View className="gap-3 mb-6">
           {/* Mini-retos de hoy */}
           <TouchableOpacity
-            onPress={() => onNavigate('health')}
+            onPress={() => onNavigate('health', 'challenges')}
             className="bg-white border border-gray-200 rounded-xl p-4"
             activeOpacity={0.7}
           >
@@ -193,7 +191,7 @@ export function HomeScreen({
 
           {/* Adherencia a medicación */}
           <TouchableOpacity
-            onPress={() => onNavigate('health')}
+            onPress={() => onNavigate('health', 'medication')}
             className="bg-white border border-gray-200 rounded-xl p-4"
             activeOpacity={0.7}
           >

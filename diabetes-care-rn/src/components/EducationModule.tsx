@@ -548,7 +548,7 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
                       </View>
                     </View>
                     <Text className="text-sm text-gray-600 mb-3">{module.description}</Text>
-                    <Progress value={module.progress} />
+                    <Progress value={module.progress} barClassName="bg-blue-500" />
                     <Text className="text-xs text-gray-600 mt-2">
                       {module.progress}% completado
                     </Text>

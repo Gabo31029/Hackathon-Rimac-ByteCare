@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
@@ -9,6 +9,7 @@ import { Card, CardContent } from './ui/Card';
 interface HealthDashboardProps {
   onBack: () => void;
   onEarnCoins: (bone: number, rimac: number) => void;
+  initialTab?: 'overview' | 'challenges' | 'medication';
 }
 
 interface GlucoseData {
@@ -37,9 +38,9 @@ interface Medication {
   isLate?: boolean;
 }
 
-export function HealthDashboard({ onBack, onEarnCoins }: HealthDashboardProps) {
+export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashboardProps) {
   const insets = useSafeAreaInsets();
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'challenges' | 'medication'>('overview');
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'challenges' | 'medication'>(initialTab || 'overview');
   const [challenges, setChallenges] = useState([
     { id: 1, title: 'Tomar agua cada 2 horas', completed: true, icon: '💧', coins: 5 },
     { id: 2, title: 'Medir glucosa en ayunas', completed: true, icon: '🩸', coins: 5 },
@@ -98,6 +99,35 @@ export function HealthDashboard({ onBack, onEarnCoins }: HealthDashboardProps) {
   const emotionalState = 'Tranquilo';
   const stressLevel = 25; // Bajo
   const emotionalMessage = 'Has reportado sentirte tranquilo en los últimos días. Esto es excelente para tu control de glucosa.';
+  
+  const [showAddMeasureModal, setShowAddMeasureModal] = useState(false);
+  const [newMeasureType, setNewMeasureType] = useState<'glucose' | 'pressure' | 'weight' | 'steps' | 'sleep'>('glucose');
+  const [newMeasureValue, setNewMeasureValue] = useState('');
+  
+  const handleAddMeasure = () => {
+    setShowAddMeasureModal(true);
+  };
+  
+  const handleSaveMeasure = () => {
+    if (!newMeasureValue) {
+      Alert.alert('Error', 'Por favor ingresa un valor');
+      return;
+    }
+    
+    const value = parseFloat(newMeasureValue);
+    if (isNaN(value)) {
+      Alert.alert('Error', 'Por favor ingresa un valor numérico válido');
+      return;
+    }
+    
+    Alert.alert(
+      'Medida agregada',
+      `Has registrado ${newMeasureType === 'glucose' ? `${value} mg/dL` : newMeasureType === 'pressure' ? `${value} mmHg` : newMeasureType === 'weight' ? `${value} kg` : newMeasureType === 'steps' ? `${value} pasos` : `${value} horas`}`
+    );
+    
+    setNewMeasureValue('');
+    setShowAddMeasureModal(false);
+  };
 
   const handleCompleteChallenge = (id: number) => {
     const challenge = challenges.find(c => c.id === id);
@@ -146,34 +176,88 @@ export function HealthDashboard({ onBack, onEarnCoins }: HealthDashboardProps) {
     }
   };
 
-  const renderBarChart = () => {
-    const maxValue = Math.max(...glucoseData.map(d => d.value));
+  const renderLineChart = () => {
+    const maxValue = 180;
+    const minValue = 70;
+    const range = maxValue - minValue;
     const chartHeight = 120;
+
+    // Calcular posiciones Y normalizadas
+    const points = glucoseData.map((data) => {
+      const normalizedValue = (data.value - minValue) / range;
+      const yPercent = 100 - (normalizedValue * 100);
+      return { yPercent, value: data.value, inRange: data.inRange, day: data.day };
+    });
 
     return (
       <View className="mb-4">
         <Text className="mb-3 text-gray-900 font-semibold text-lg">Tendencia semanal de glucosa</Text>
         <View className="bg-white rounded-xl p-4 border border-gray-200">
-          <View className="flex-row items-end justify-between h-32 mb-4">
-            {glucoseData.map((data, index) => {
-              const height = (data.value / maxValue) * chartHeight;
-              return (
-                <View key={index} className="flex-1 items-center gap-2">
-                  <View className="w-full items-center justify-end" style={{ height: chartHeight }}>
+          <View className="h-32 mb-4 relative">
+            {/* Grid de fondo */}
+            <View className="absolute inset-0 flex-col justify-between">
+              {[0, 1, 2, 3].map((i) => (
+                <View key={i} className="h-px bg-gray-100" />
+              ))}
+            </View>
+            
+            {/* Contenedor de puntos y líneas */}
+            <View className="absolute inset-0 flex-row items-end justify-between px-2">
+              {points.map((point, index) => {
+                const prevPoint = index > 0 ? points[index - 1] : null;
+                const color = point.inRange ? '#10B981' : '#EF4444';
+                
+                return (
+                  <View key={index} className="flex-1 items-center relative" style={{ height: chartHeight }}>
+                    {/* Línea conectando puntos - simplificada */}
+                    {prevPoint && (
+                      <View
+                        className="absolute"
+                        style={{
+                          left: '50%',
+                          bottom: `${prevPoint.yPercent}%`,
+                          width: '100%',
+                          height: 2,
+                          backgroundColor: point.inRange && prevPoint.inRange ? '#10B981' : '#EF4444',
+                          transform: [
+                            { translateX: -50 },
+                            {
+                              rotate: `${Math.atan2(
+                                (point.yPercent - prevPoint.yPercent) * (chartHeight / 100),
+                                40
+                              ) * (180 / Math.PI)}deg`
+                            }
+                          ],
+                        }}
+                      />
+                    )}
+                    
+                    {/* Punto en la línea */}
                     <View
-                      className={cn(
-                        'w-full rounded-t',
-                        data.inRange ? 'bg-green-500' : 'bg-red-500'
-                      )}
-                      style={{ height: `${(height / chartHeight) * 100}%`, minHeight: 8 }}
+                      className="absolute"
+                      style={{
+                        bottom: `${point.yPercent}%`,
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: color,
+                        borderWidth: 2,
+                        borderColor: 'white',
+                        zIndex: 10,
+                      }}
                     />
+                    
+                    {/* Etiqueta del día */}
+                    <Text className="absolute -bottom-5 text-xs text-gray-600">
+                      {point.day}
+                    </Text>
                   </View>
-                  <Text className="text-xs text-gray-600">{data.day}</Text>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
           </View>
-          <View className="flex-row items-center justify-center gap-4 mt-2">
+          
+          <View className="flex-row items-center justify-center gap-4 mt-6">
             <View className="flex-row items-center gap-2">
               <View className="w-3 h-3 bg-green-500 rounded-full" />
               <Text className="text-xs text-gray-600">En rango</Text>
@@ -197,7 +281,7 @@ export function HealthDashboard({ onBack, onEarnCoins }: HealthDashboardProps) {
             <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
           <Text className="text-white text-lg font-semibold">Mi Salud</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleAddMeasure} activeOpacity={0.7}>
             <Ionicons name="add" size={24} color="white" />
           </TouchableOpacity>
         </View>
@@ -300,7 +384,7 @@ export function HealthDashboard({ onBack, onEarnCoins }: HealthDashboardProps) {
             </View>
 
             {/* Tendencia semanal de glucosa */}
-            {renderBarChart()}
+            {renderLineChart()}
 
             {/* Monitoreo emocional */}
             <View className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4">
@@ -485,6 +569,88 @@ export function HealthDashboard({ onBack, onEarnCoins }: HealthDashboardProps) {
           </>
         )}
       </ScrollView>
+
+      {/* Modal para agregar medidas */}
+      <Modal
+        visible={showAddMeasureModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowAddMeasureModal(false)}
+      >
+        <View className="flex-1 bg-black/50 items-center justify-end">
+          <View className="bg-white rounded-t-3xl w-full p-6" style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-gray-900 font-semibold text-lg">Agregar medida</Text>
+              <TouchableOpacity onPress={() => setShowAddMeasureModal(false)} activeOpacity={0.7}>
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <Text className="text-sm text-gray-600 mb-4">Selecciona el tipo de medida</Text>
+            
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {[
+                { type: 'glucose' as const, label: 'Glucosa', icon: '🩸' },
+                { type: 'pressure' as const, label: 'Presión', icon: '❤️' },
+                { type: 'weight' as const, label: 'Peso', icon: '⚖️' },
+                { type: 'steps' as const, label: 'Pasos', icon: '🚶' },
+                { type: 'sleep' as const, label: 'Sueño', icon: '😴' },
+              ].map((item) => (
+                <TouchableOpacity
+                  key={item.type}
+                  onPress={() => setNewMeasureType(item.type)}
+                  className={cn(
+                    'px-4 py-3 rounded-xl border-2',
+                    newMeasureType === item.type
+                      ? 'border-rimac bg-red-50'
+                      : 'border-gray-200 bg-white'
+                  )}
+                  activeOpacity={0.7}
+                >
+                  <View className="flex-row items-center gap-2">
+                    <Text>{item.icon}</Text>
+                    <Text
+                      className={cn(
+                        'font-semibold',
+                        newMeasureType === item.type ? 'text-rimac' : 'text-gray-700'
+                      )}
+                    >
+                      {item.label}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text className="text-sm text-gray-600 mb-2">Valor</Text>
+            <TextInput
+              value={newMeasureValue}
+              onChangeText={setNewMeasureValue}
+              placeholder={
+                newMeasureType === 'glucose'
+                  ? 'mg/dL'
+                  : newMeasureType === 'pressure'
+                  ? 'mmHg'
+                  : newMeasureType === 'weight'
+                  ? 'kg'
+                  : newMeasureType === 'steps'
+                  ? 'pasos'
+                  : 'horas'
+              }
+              keyboardType="numeric"
+              className="border border-gray-300 rounded-xl px-4 py-3 mb-4"
+            />
+
+            <TouchableOpacity
+              onPress={handleSaveMeasure}
+              className="bg-rimac rounded-xl py-4 items-center"
+              activeOpacity={0.7}
+            >
+              <Text className="text-white font-semibold text-lg">Guardar medida</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

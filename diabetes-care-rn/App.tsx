@@ -17,6 +17,7 @@ type Screen = 'home' | 'checkin' | 'health' | 'pet' | 'support' | 'education' | 
 function AppContent() {
   const insets = useSafeAreaInsets();
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  const [healthInitialTab, setHealthInitialTab] = useState<'overview' | 'challenges' | 'medication' | undefined>(undefined);
   const [hasCompletedCheckIn, setHasCompletedCheckIn] = useState(false);
   const [boneCoins, setBoneCoins] = useState(145);
   const [rimacCoins, setRimacCoins] = useState(28);
@@ -34,7 +35,12 @@ function AppContent() {
     setRimacCoins(prev => prev + rimac);
   };
 
-  const handleNavigate = (screen: string) => {
+  const handleNavigate = (screen: string, healthTab?: 'overview' | 'challenges' | 'medication') => {
+    if (screen === 'health' && healthTab) {
+      setHealthInitialTab(healthTab);
+    } else {
+      setHealthInitialTab(undefined);
+    }
     setCurrentScreen(screen as Screen);
   };
 
@@ -63,6 +69,7 @@ function AppContent() {
           <HealthDashboard
             onBack={() => setCurrentScreen('home')}
             onEarnCoins={handleEarnCoins}
+            initialTab={healthInitialTab}
           />
         );
       case 'pet':
@@ -100,7 +107,8 @@ function AppContent() {
     }
   };
 
-  const showNavigation = currentScreen === 'home';
+  // Mostrar navegación en todas las vistas principales, no en vistas secundarias
+  const showNavigation = ['home', 'health', 'support', 'education', 'rewards'].includes(currentScreen);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
