@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Switch, Alert, Linking } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
@@ -40,7 +41,7 @@ interface Alert {
 
 export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
   const insets = useSafeAreaInsets();
-  const [selectedTab, setSelectedTab] = useState<'family' | 'professional' | 'alerts'>('family');
+  const [selectedTab, setSelectedTab] = useState<'family' | 'professional' | 'alerts' | 'forum'>('family');
   const [showAddFamily, setShowAddFamily] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
 
@@ -208,8 +209,9 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
 
   return (
     <View className="flex-1 bg-gray-50">
+      <StatusBar style="light" backgroundColor="#EC0000" />
       {/* Header */}
-      <View className="bg-rimac p-4 pb-6" style={{ paddingTop: Math.max(insets.top, 16) }}>
+      <View className="bg-rimac p-4 pb-6" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
             <Ionicons name="chevron-back" size={24} color="white" />
@@ -220,32 +222,41 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
           </TouchableOpacity>
         </View>
 
-        {/* Tabs */}
-        <View className="flex-row gap-2 bg-white/10 backdrop-blur rounded-xl p-1">
-          {(['family', 'professional', 'alerts'] as const).map((tab) => (
+        {/* Tabs - Scroll horizontal */}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          className="flex-row"
+          contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+        >
+          {(['family', 'professional', 'alerts', 'forum'] as const).map((tab) => (
             <TouchableOpacity
               key={tab}
               onPress={() => setSelectedTab(tab)}
               className={cn(
-                'flex-1 py-2 rounded-lg items-center',
-                selectedTab === tab ? 'bg-white' : ''
+                'px-5 py-3 rounded-xl items-center',
+                selectedTab === tab ? 'bg-white' : 'bg-white/10'
               )}
               activeOpacity={0.8}
             >
               <Text
                 className={cn(
-                  'text-sm font-medium',
+                  'text-sm font-semibold',
                   selectedTab === tab ? 'text-rimac' : 'text-white'
                 )}
               >
-                {tab === 'family' ? 'Familia' : tab === 'professional' ? 'Profesionales' : 'Alertas'}
+                {tab === 'family' ? 'Familia' : tab === 'professional' ? 'Profesionales' : tab === 'alerts' ? 'Alertas' : 'Foro'}
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
       </View>
 
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        className="p-4" 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {selectedTab === 'family' && (
           <>
             {/* Mensaje principal */}
@@ -264,7 +275,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
             </View>
 
             {/* Familiares conectados */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Familiares conectados</Text>
+            <Text className="mb-4 text-gray-900 font-bold text-xl">Familiares conectados</Text>
             <View className="gap-3 mb-4">
               {familyMembers.map((member) => (
                 <Card key={member.id}>
@@ -300,7 +311,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
             </View>
 
             {/* Reporte mensual */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Reporte mensual para familia</Text>
+            <Text className="mb-4 text-gray-900 font-bold text-xl">Reporte mensual para familia</Text>
             <Card className="mb-4">
               <CardContent>
                 <View className="flex-row items-center justify-between mb-4">
@@ -389,7 +400,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
             </View>
 
             {/* Equipo de salud */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Equipo de salud</Text>
+            <Text className="mb-4 text-gray-900 font-bold text-xl">Equipo de salud</Text>
             <View className="gap-3 mb-4">
               {professionals.map((professional) => (
                 <Card key={professional.id}>
@@ -488,7 +499,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
             </View>
 
             {/* Alertas automáticas */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Alertas automáticas</Text>
+            <Text className="mb-4 text-gray-900 font-bold text-xl">Alertas automáticas</Text>
             <View className="gap-3 mb-4">
               {alerts.map((alert) => (
                 <Card key={alert.id}>
@@ -521,7 +532,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
             </View>
 
             {/* Historial reciente */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Historial reciente</Text>
+            <Text className="mb-4 text-gray-900 font-bold text-xl">Historial reciente</Text>
             <View className="gap-3 mb-4">
               {alertHistory.map((item) => (
                 <Card key={item.id}>
@@ -563,6 +574,148 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                 </Card>
               ))}
             </View>
+          </>
+        )}
+
+        {selectedTab === 'forum' && (
+          <>
+            {/* Header del Foro */}
+            <View className="mb-4">
+              <Text className="text-gray-900 font-bold text-2xl mb-2">Foro de Pacientes</Text>
+              <Text className="text-sm text-gray-600">
+                Conecta con otros pacientes, comparte experiencias y aprende juntos
+              </Text>
+            </View>
+
+            {/* Filtros */}
+            <View className="flex-row gap-2 mb-4">
+              <TouchableOpacity
+                className="px-4 py-2 bg-white border border-gray-300 rounded-full"
+                activeOpacity={0.7}
+              >
+                <Text className="text-sm text-gray-700 font-medium">Mi región</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="px-4 py-2 bg-white border border-gray-300 rounded-full"
+                activeOpacity={0.7}
+              >
+                <Text className="text-sm text-gray-700 font-medium">Mi edad</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Posts del foro */}
+            <View className="gap-4 mb-6">
+              {/* Post 1 */}
+              <Card>
+                <CardContent>
+                  <View className="flex-row items-start justify-between mb-3">
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <Text className="text-gray-900 font-semibold text-base">Carlos M.</Text>
+                        <View className="bg-blue-100 px-2 py-1 rounded-full">
+                          <Text className="text-blue-700 text-xs font-medium">45 años • Lima</Text>
+                        </View>
+                      </View>
+                      <Text className="text-xs text-gray-500">Hace 2 horas</Text>
+                    </View>
+                  </View>
+                  <Text className="text-gray-700 mb-4 leading-5 text-base">
+                    Hace 3 meses que me diagnosticaron diabetes tipo 2. Al principio fue difícil, pero con el apoyo de mi familia y siguiendo las recomendaciones de mi médico, he logrado controlar mis niveles de glucosa. ¡No están solos! 💪
+                  </Text>
+                  <View className="flex-row items-center gap-6 pt-3 border-t border-gray-200">
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="heart-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">12</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">5</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="share-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">Compartir</Text>
+                    </TouchableOpacity>
+                  </View>
+                </CardContent>
+              </Card>
+
+              {/* Post 2 */}
+              <Card>
+                <CardContent>
+                  <View className="flex-row items-start justify-between mb-3">
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <Text className="text-gray-900 font-semibold text-base">María G.</Text>
+                        <View className="bg-blue-100 px-2 py-1 rounded-full">
+                          <Text className="text-blue-700 text-xs font-medium">52 años • Arequipa</Text>
+                        </View>
+                      </View>
+                      <Text className="text-xs text-gray-500">Hace 5 horas</Text>
+                    </View>
+                  </View>
+                  <Text className="text-gray-700 mb-4 leading-5 text-base">
+                    Comparto mi experiencia: caminar 30 minutos al día ha sido clave para mantener mis niveles de glucosa estables. Además, he aprendido a preparar comidas deliciosas y saludables. ¿Alguien más tiene recetas que compartir?
+                  </Text>
+                  <View className="flex-row items-center gap-6 pt-3 border-t border-gray-200">
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="heart" size={20} color="#EF4444" />
+                      <Text className="text-sm text-red-500 font-medium">8</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">3</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="share-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">Compartir</Text>
+                    </TouchableOpacity>
+                  </View>
+                </CardContent>
+              </Card>
+
+              {/* Post 3 */}
+              <Card>
+                <CardContent>
+                  <View className="flex-row items-start justify-between mb-3">
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <Text className="text-gray-900 font-semibold text-base">Luis R.</Text>
+                        <View className="bg-blue-100 px-2 py-1 rounded-full">
+                          <Text className="text-blue-700 text-xs font-medium">38 años • Trujillo</Text>
+                        </View>
+                      </View>
+                      <Text className="text-xs text-gray-500">Hace 1 día</Text>
+                    </View>
+                  </View>
+                  <Text className="text-gray-700 mb-4 leading-5 text-base">
+                    ¿Alguien ha probado el método del plato? Me ha ayudado mucho a controlar las porciones sin sentir que me estoy privando de comer. Les recomiendo probarlo.
+                  </Text>
+                  <View className="flex-row items-center gap-6 pt-3 border-t border-gray-200">
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="heart-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">15</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">7</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row items-center gap-2" activeOpacity={0.7}>
+                      <Ionicons name="share-outline" size={20} color="#6B7280" />
+                      <Text className="text-sm text-gray-600 font-medium">Compartir</Text>
+                    </TouchableOpacity>
+                  </View>
+                </CardContent>
+              </Card>
+            </View>
+
+            {/* Botón para crear nuevo post */}
+            <TouchableOpacity
+              className="bg-rimac rounded-xl py-4 items-center mb-4"
+              activeOpacity={0.8}
+              onPress={() => Alert.alert('Nuevo post', 'Funcionalidad de crear post próximamente')}
+            >
+              <Text className="text-white font-semibold text-lg">Compartir mi experiencia</Text>
+            </TouchableOpacity>
           </>
         )}
       </ScrollView>

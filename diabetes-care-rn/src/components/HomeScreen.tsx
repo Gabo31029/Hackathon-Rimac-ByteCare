@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { cn } from '../utils/cn';
 import { Button } from './ui/Button';
 import { Card, CardContent } from './ui/Card';
 import { Progress } from './ui/Progress';
+import { Coin } from './ui/Coin';
+import { PetImage } from './PetImage';
 
 interface HomeScreenProps {
   hasCompletedCheckIn: boolean;
@@ -26,8 +28,8 @@ export function HomeScreen({
   return (
     <ScrollView className="flex-1 pb-24" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
       {/* Hero section with curved bottom */}
-      <View className="bg-rimac pt-4 pb-8 px-4 rounded-b-3xl">
-        <View className="flex-row items-center justify-between mt-4 mb-1">
+      <View className="bg-rimac pb-8 px-4 rounded-b-3xl" style={{ paddingTop: 12 }}>
+        <View className="flex-row items-center justify-between mb-2">
           <View className="flex-1">
             <Text className="text-white text-xl font-semibold">
               Hola, María 👋
@@ -36,11 +38,8 @@ export function HomeScreen({
           </View>
           {/* Racha de check-ins - más pequeña y al costado */}
           <View className="bg-white/10 backdrop-blur rounded-xl px-3 py-2 flex-row items-center gap-2">
-            <Ionicons name="flame" size={16} color="#FCD34D" />
-            <View className="items-center">
-              <Text className="text-white text-lg font-bold">{streak}</Text>
-              <Text className="text-white/80 text-xs">días</Text>
-            </View>
+            <Ionicons name="flame" size={24} color="#FCD34D" />
+            <Text className="text-white text-lg font-bold">{streak}</Text>
           </View>
         </View>
       </View>
@@ -86,7 +85,11 @@ export function HomeScreen({
                 <Text className="text-green-900 font-semibold">
                   ¡Check-in completado!
                 </Text>
-                <Text className="text-sm text-green-700">Ganaste 10 monedas 🦴</Text>
+                <Text className="text-sm text-green-700">Ganaste 10 monedas</Text>
+                <View className="flex-row items-center gap-1 mt-1">
+                  <Coin type="bone" size={16} />
+                  <Text className="text-sm text-green-700">10</Text>
+                </View>
               </View>
             </View>
             <View className="flex-row items-center gap-1">
@@ -112,8 +115,8 @@ export function HomeScreen({
             <Ionicons name="chevron-forward" size={20} color="#9333EA" />
           </View>
           <View className="flex-row items-center gap-4">
-            <View className="w-20 h-20 bg-amber-200 rounded-2xl items-center justify-center">
-              <Text className="text-4xl">🐕</Text>
+            <View className="w-20 h-20 bg-amber-200 rounded-2xl items-center justify-center overflow-hidden">
+              <PetImage size={70} />
             </View>
             <View className="flex-1">
               <View className="flex-row items-center justify-between text-sm text-purple-700 mb-1">
@@ -134,7 +137,7 @@ export function HomeScreen({
         </TouchableOpacity>
 
         {/* Módulos principales */}
-        <Text className="mb-3 text-gray-900 font-semibold text-lg">
+        <Text className="mb-4 text-gray-900 font-bold text-xl">
           Cuidado Diario Inteligente
         </Text>
 
@@ -256,7 +259,7 @@ export function HomeScreen({
         </View>
 
         {/* Quick actions */}
-        <Text className="mb-3 text-gray-900 font-semibold text-lg">
+        <Text className="mb-4 text-gray-900 font-bold text-xl">
           Accesos rápidos
         </Text>
         <View className="flex-row gap-3 mb-6">

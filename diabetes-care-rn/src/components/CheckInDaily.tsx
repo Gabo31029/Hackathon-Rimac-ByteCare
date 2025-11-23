@@ -71,7 +71,7 @@ export function CheckInDaily({ onComplete, onBack }: CheckInDailyProps) {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-white border-b border-gray-200 p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
+      <View className="bg-white border-b border-gray-200 p-4" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
         <View className="flex-row items-center justify-between mb-4">
           <TouchableOpacity onPress={onBack}>
             <Ionicons name="chevron-back" size={24} color="#6B7280" />

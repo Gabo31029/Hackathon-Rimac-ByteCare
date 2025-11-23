@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '../utils/cn';
@@ -239,7 +240,8 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
   if (selectedLesson) {
     return (
       <View className="flex-1 bg-gray-50">
-        <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
+        <StatusBar style="light" backgroundColor="#EC0000" />
+        <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
           <View className="flex-row items-center justify-between">
             <TouchableOpacity onPress={() => setSelectedLesson(null)} activeOpacity={0.7}>
               <Ionicons name="chevron-back" size={24} color="white" />
@@ -249,7 +251,11 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
           </View>
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          className="flex-1" 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
           {selectedLesson.type === 'quiz' ? (
             <View className="p-4">
               <View className="bg-white rounded-2xl p-6 mb-4">
@@ -379,7 +385,8 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
   if (selectedModule) {
     return (
       <View className="flex-1 bg-gray-50">
-        <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
+        <StatusBar style="light" backgroundColor="#EC0000" />
+        <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
           <View className="flex-row items-center justify-between mb-4">
             <TouchableOpacity onPress={() => setSelectedModule(null)} activeOpacity={0.7}>
               <Ionicons name="chevron-back" size={24} color="white" />
@@ -402,7 +409,11 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
           </View>
         </View>
 
-        <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          className="p-4" 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
           <View className="mb-4">
             <Text className="text-gray-900 font-semibold text-lg mb-1">
               {selectedModule.title}
@@ -471,7 +482,8 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
   // Vista principal (módulos y progreso general)
   return (
     <View className="flex-1 bg-gray-50">
-      <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top, 16) }}>
+      <StatusBar style="light" backgroundColor="#EC0000" />
+      <View className="bg-rimac p-4" style={{ paddingTop: Math.max(insets.top - 10, 8) }}>
         <View className="flex-row items-center justify-between">
           <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
             <Ionicons name="chevron-back" size={24} color="white" />
@@ -481,7 +493,11 @@ export function EducationModule({ onBack, onEarnCoins }: EducationModuleProps) {
         </View>
       </View>
 
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        className="p-4" 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/* Progreso general */}
         <View className="bg-purple-600 rounded-2xl p-6 mb-4">
           <View className="flex-row items-start justify-between mb-4">
