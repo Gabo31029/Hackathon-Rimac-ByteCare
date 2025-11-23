@@ -297,7 +297,7 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
                 <Text className="text-white">180</Text>
               </View>
               <View className="pt-4 border-t border-white/20 flex-row items-center justify-between">
-                <Text className="text-sm text-white">Ãšltima mediciÃ³n: Hace 2 horas</Text>
+                <Text className="text-sm text-white">Última medición: Hace 2 horas</Text>
                 <Ionicons name="trending-down" size={16} color="white" />
               </View>
             </View>

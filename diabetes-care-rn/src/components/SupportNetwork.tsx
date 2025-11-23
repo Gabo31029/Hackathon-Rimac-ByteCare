@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Switch, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,7 +28,7 @@ interface Professional {
   completedAppointments: number;
 }
 
-interface Alert {
+interface AlertItem {
   id: string;
   title: string;
   condition: string;
@@ -47,22 +47,22 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
   const [familyMembers] = useState<FamilyMember[]>([
     {
       id: '1',
-      name: 'Carlos Fernández',
+      name: 'Carlos Fernandez',
       relationship: 'Esposo',
       status: 'active',
       canSee: [
         'Progreso general y adherencia',
-        'Alertas de glucosa crítica',
+        'Alertas de glucosa critica',
         'Reporte mensual',
       ],
       mode: 'accompaniment',
     },
     {
       id: '2',
-      name: 'Ana Fernández',
+      name: 'Ana Fernandez',
       relationship: 'Hija',
       status: 'active',
-      canSee: ['Alertas de glucosa crítica'],
+      canSee: ['Alertas de glucosa critica'],
       mode: 'alerts-only',
     },
   ]);
@@ -70,15 +70,15 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
   const [professionals] = useState<Professional[]>([
     {
       id: '1',
-      name: 'Dr. Juan Pérez',
-      specialization: 'Endocrinólogo',
+      name: 'Dr. Juan Perez',
+      specialization: 'Endocrinologo',
       phone: '+51 999 888 777',
       nextAppointment: '15 de enero, 10:00 AM',
       completedAppointments: 3,
     },
     {
       id: '2',
-      name: 'Lic. María González',
+      name: 'Lic. Maria Gonzalez',
       specialization: 'Nutricionista',
       phone: '+51 999 888 666',
       completedAppointments: 1,
@@ -86,16 +86,65 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     {
       id: '3',
       name: 'Psic. Roberto Silva',
-      specialization: 'Psicólogo clínico',
+      specialization: 'Psicologo clinico',
       phone: '+51 999 888 555',
       completedAppointments: 0,
     },
   ]);
 
-  const [alerts, setAlerts] = useState<Alert[]>([
+  const monthlyReport = {
+    month: 'Diciembre 2024',
+    sentAt: 'Enviado hace 2 dias',
+    highlights: [
+      { label: 'Dias en rango', value: '24 / 30', delta: '+4 vs nov', color: '#10B981' },
+      { label: 'Check-ins completados', value: '82%', delta: '+6%', color: '#3B82F6' },
+      { label: 'Actividad fisica', value: '18 sesiones', delta: '+3', color: '#F59E0B' },
+    ],
+    glucoseStats: {
+      promedio: '112 mg/dL',
+      picosAltos: '3 eventos > 200 mg/dL',
+      picosBajos: '1 evento < 70 mg/dL',
+      nocheEnRango: '83% de las noches en 80-130',
+    },
+    medication: {
+      adherencia: '95%',
+      dosisAtrasadas: 1,
+      notas: 'Se adelanto recordatorio de la dosis nocturna.',
+    },
+    events: [
+      'Se ajusto horario de cena para evitar pico nocturno (Nutricionista).',
+      'Familia apoyo en caminata post almuerzo 3 dias.',
+      'Sin alertas criticas en las ultimas 2 semanas.',
+    ],
+    nextMonth: [
+      'Programar control endocrino la primera semana (Endocrinólogo).',
+      'Mantener respiraciones guiadas 3 veces por semana (Ana).',
+      'Revisar colaciones nocturnas y reducir dulces procesados (Carlos).',
+    ],
+    sections: [
+      {
+        title: 'Habitos destacados',
+        items: [
+          'Caminar despues del almuerzo 4 dias por semana.',
+          'Registro constante de glucosa en la manana.',
+          'Respiraciones guiadas para reducir estres nocturno.',
+        ],
+      },
+      {
+        title: 'Enfoques para enero',
+        items: [
+          'Reforzar hidratacion (2L diarios).',
+          'Ajustar meriendas nocturnas con nutricionista.',
+        ],
+      },
+    ],
+    sharedWith: ['Carlos', 'Ana'],
+  };
+
+  const [alerts, setAlerts] = useState<AlertItem[]>([
     {
       id: '1',
-      title: 'Glucosa crítica',
+      title: 'Glucosa critica',
       condition: '< 70 o > 250 mg/dL',
       notifyTo: ['Carlos y Ana'],
       enabled: true,
@@ -105,7 +154,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     {
       id: '2',
       title: 'Sin mediciones',
-      condition: 'Más de 3 días sin registrar',
+      condition: 'Mas de 3 dias sin registrar',
       notifyTo: ['Carlos'],
       enabled: true,
       icon: '🔔',
@@ -113,8 +162,8 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     },
     {
       id: '3',
-      title: 'Patrón emocional preocupante',
-      condition: 'Estrés o ansiedad alta por 5+ días',
+      title: 'Patron emocional preocupante',
+      condition: 'Estres o ansiedad alta por 5+ dias',
       notifyTo: ['Carlos'],
       enabled: true,
       icon: '💜',
@@ -126,14 +175,14 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     {
       id: '1',
       type: 'all-clear',
-      message: 'No se han activado alertas en los últimos 14 días',
-      date: 'Hace 14 días',
+      message: 'No se han activado alertas en los ultimos 14 dias',
+      date: 'Hace 14 dias',
     },
     {
       id: '2',
       type: 'suggestion',
-      message: 'El sistema sugirió una cita psicológica',
-      date: 'Hace 3 días',
+      message: 'El sistema sugirio una cita psicologica',
+      date: 'Hace 3 dias',
       action: 'Agendar ahora',
     },
   ]);
@@ -150,31 +199,30 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     setShowAddFamily(true);
     Alert.alert(
       'Agregar familiar',
-      'Esta función te permitirá invitar a un familiar a tu red de apoyo.',
+      'Esta funcion te permitira invitar a un familiar a tu red de apoyo.',
       [{ text: 'OK', onPress: () => setShowAddFamily(false) }]
     );
   };
 
   const handleViewFullReport = () => {
-    setShowFullReport(true);
-    Alert.alert(
-      'Reporte completo',
-      'Aquí verías el reporte mensual completo con todos los detalles de tu salud.',
-      [{ text: 'OK', onPress: () => setShowFullReport(false) }]
-    );
+    setShowFullReport(prev => !prev);
+  };
+
+  const handleShareReport = () => {
+    Alert.alert('Reporte compartido', 'Tu familia recibira la version completa por correo.');
   };
 
   const handleSchedulePsychologist = () => {
     Alert.alert(
-      'Agendar cita con psicólogo',
-      '¿Deseas agendar una cita con el psicólogo?',
+      'Agendar cita con psicologo',
+      'Deseas agendar una cita con el psicologo?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Agendar',
           onPress: () => {
             onEarnCoins(0, 10);
-            Alert.alert('¡Cita agendada!', 'Ganaste 10 monedas Rimac 🎉');
+            Alert.alert('Cita agendada', 'Ganaste 10 monedas Rimac');
           },
         },
       ]
@@ -192,14 +240,14 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
   const handleScheduleAppointment = (professional: Professional) => {
     Alert.alert(
       'Agendar cita',
-      `¿Deseas agendar una cita con ${professional.name}?`,
+      `Deseas agendar una cita con ${professional.name}?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Agendar',
           onPress: () => {
             onEarnCoins(0, 10);
-            Alert.alert('¡Cita agendada!', 'Ganaste 10 monedas Rimac 🎉');
+            Alert.alert('Cita agendada', 'Ganaste 10 monedas Rimac');
           },
         },
       ]
@@ -255,9 +303,9 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                   <Ionicons name="heart" size={24} color="#E11D48" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-rose-900 mb-1 font-semibold text-lg">No estás solo</Text>
+                  <Text className="text-rose-900 mb-1 font-semibold text-lg">No estas solo</Text>
                   <Text className="text-sm text-rose-800">
-                    Tu familia puede acompañarte en tu cuidado de forma respetuosa y sin invadir tu privacidad.
+                    Tu familia puede acompanar tu cuidado de forma respetuosa y sin invadir tu privacidad.
                   </Text>
                 </View>
               </View>
@@ -276,7 +324,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                       <View className="flex-1">
                         <Text className="text-gray-900 font-semibold">{member.name}</Text>
                         <Text className="text-sm text-gray-600">
-                          {member.relationship} - {member.mode === 'accompaniment' ? 'Modo Acompañar activo' : 'Solo alertas críticas'}
+                          {member.relationship} - {member.mode === 'accompaniment' ? 'Modo Acompanhar activo' : 'Solo alertas criticas'}
                         </Text>
                       </View>
                       <Ionicons
@@ -297,56 +345,6 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                   </CardContent>
                 </Card>
               ))}
-            </View>
-
-            {/* Reporte mensual */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Reporte mensual para familia</Text>
-            <Card className="mb-4">
-              <CardContent>
-                <View className="flex-row items-center justify-between mb-4">
-                  <View>
-                    <Text className="text-gray-900 font-semibold text-lg">Reporte de Diciembre</Text>
-                    <Text className="text-sm text-gray-600">Enviado hace 2 días</Text>
-                  </View>
-                  <Ionicons name="calendar" size={24} color="#6B7280" />
-                </View>
-
-                <View className="gap-3">
-                  <View className="flex-row items-center justify-between p-3 bg-emerald-50 rounded-xl">
-                    <View className="flex-row items-center gap-3">
-                      <Ionicons name="pulse" size={24} color="#059669" />
-                      <Text className="text-emerald-700 font-medium">Glucosa promedio</Text>
-                    </View>
-                    <Text className="text-emerald-900 font-bold text-lg">112 mg/dL</Text>
-                  </View>
-
-                  <View className="flex-row items-center justify-between p-3 bg-emerald-50 rounded-xl">
-                    <View className="flex-row items-center gap-3">
-                      <Ionicons name="checkmark-circle" size={24} color="#059669" />
-                      <Text className="text-emerald-700 font-medium">Adherencia</Text>
-                    </View>
-                    <Text className="text-emerald-900 font-bold text-lg">95%</Text>
-                  </View>
-
-                  <View className="flex-row items-center justify-between p-3 bg-blue-50 rounded-xl">
-                    <View className="flex-row items-center gap-3">
-                      <Ionicons name="flame" size={24} color="#2563EB" />
-                      <Text className="text-blue-700 font-medium">Racha actual</Text>
-                    </View>
-                    <Text className="text-blue-900 font-bold text-lg">7 días</Text>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  onPress={handleViewFullReport}
-                  className="mt-4 border border-gray-300 rounded-xl py-3 items-center"
-                  activeOpacity={0.7}
-                >
-                  <Text className="text-gray-700 font-semibold">Ver reporte completo</Text>
-                </TouchableOpacity>
-              </CardContent>
-            </Card>
-
             {/* Agregar familiar */}
             <TouchableOpacity
               onPress={handleAddFamily}
@@ -361,6 +359,133 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                 Invita a alguien a tu red de apoyo
               </Text>
             </TouchableOpacity>
+            </View>
+
+            {/* Reporte mensual */}
+            <Text className="mb-3 text-gray-900 font-semibold text-lg">Reporte mensual para familia</Text>
+            <Card className="mb-4">
+              <CardContent>
+                <View className="flex-row items-center justify-between mb-4">
+                  <View>
+                    <Text className="text-gray-900 font-semibold text-lg">{monthlyReport.month}</Text>
+                    <Text className="text-sm text-gray-600">{monthlyReport.sentAt}</Text>
+                  </View>
+                  <Ionicons name="calendar" size={24} color="#6B7280" />
+                </View>
+
+                <View className="gap-3">
+                  {monthlyReport.highlights.map((item) => (
+                    <View
+                      key={item.label}
+                      className="flex-row items-center justify-between p-3 rounded-xl"
+                      style={{ backgroundColor: `${item.color}20` }}
+                    >
+                      <View>
+                        <Text className="font-medium" style={{ color: item.color }}>
+                          {item.label}
+                        </Text>
+                        <Text className="text-xs text-gray-600 mt-1">{item.delta}</Text>
+                      </View>
+                      <Text className="font-bold text-lg" style={{ color: item.color }}>
+                        {item.value}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleViewFullReport}
+                  className="mt-4 border border-gray-300 rounded-xl py-3 items-center"
+                  activeOpacity={0.7}
+                >
+                  <Text className="text-gray-700 font-semibold">
+                    {showFullReport ? 'Ocultar reporte' : 'Ver reporte completo'}
+                  </Text>
+                </TouchableOpacity>
+
+                {showFullReport && (
+                  <View className="mt-4 border border-gray-200 rounded-2xl p-4 bg-gray-50">
+                    <Text className="text-gray-900 font-semibold mb-3">Resumen enviado</Text>
+                    <View className="mb-4">
+                      <Text className="text-sm text-gray-700 font-semibold mb-2">Glucosa y eventos</Text>
+                      <View className="bg-white border border-gray-200 rounded-xl p-3 mb-3">
+                        <Text className="text-sm text-gray-700">Promedio: {monthlyReport.glucoseStats.promedio}</Text>
+                        <Text className="text-sm text-gray-700 mt-1">{monthlyReport.glucoseStats.picosAltos}</Text>
+                        <Text className="text-sm text-gray-700 mt-1">{monthlyReport.glucoseStats.picosBajos}</Text>
+                        <Text className="text-sm text-gray-700 mt-1">{monthlyReport.glucoseStats.nocheEnRango}</Text>
+                      </View>
+
+                      <Text className="text-sm text-gray-700 font-semibold mb-2">Adherencia y medicacion</Text>
+                      <View className="bg-white border border-gray-200 rounded-xl p-3 mb-3">
+                        <Text className="text-sm text-gray-700">Adherencia: {monthlyReport.medication.adherencia}</Text>
+                        <Text className="text-sm text-gray-700 mt-1">
+                          Dosis atrasadas: {monthlyReport.medication.dosisAtrasadas}
+                        </Text>
+                        <Text className="text-sm text-gray-700 mt-1">{monthlyReport.medication.notas}</Text>
+                      </View>
+                    </View>
+
+                    {monthlyReport.sections.map((section) => (
+                      <View key={section.title} className="mb-4">
+                        <Text className="text-sm text-gray-700 font-semibold mb-2">{section.title}</Text>
+                        {section.items.map((item, idx) => (
+                          <View key={idx} className="flex-row items-start gap-2 mb-1">
+                            <Text className="text-base text-gray-500">-</Text>
+                            <Text className="text-sm text-gray-600 flex-1">{item}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ))}
+                    <View className="mb-4">
+                      <Text className="text-sm text-gray-700 font-semibold mb-2">Compartido con</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {monthlyReport.sharedWith.map((name) => (
+                          <View key={name} className="px-3 py-1 rounded-full bg-white border border-gray-200">
+                            <Text className="text-xs text-gray-700">{name}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                    <View className="mb-4">
+                      <Text className="text-sm text-gray-700 font-semibold mb-2">Eventos importantes</Text>
+                      {monthlyReport.events.map((ev, idx) => (
+                        <View key={idx} className="flex-row items-start gap-2 mb-1">
+                          <Text className="text-base text-gray-500">-</Text>
+                          <Text className="text-sm text-gray-600 flex-1">{ev}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <View className="mb-4">
+                      <Text className="text-sm text-gray-700 font-semibold mb-2">Plan proximo mes</Text>
+                      {monthlyReport.nextMonth.map((ev, idx) => (
+                        <View key={idx} className="flex-row items-start gap-2 mb-1">
+                          <Text className="text-base text-gray-500">-</Text>
+                          <Text className="text-sm text-gray-600 flex-1">{ev}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <View className="flex-row gap-2">
+                      <TouchableOpacity
+                        onPress={handleShareReport}
+                        className="flex-1 bg-rimac rounded-xl py-3 items-center"
+                        activeOpacity={0.7}
+                      >
+                        <Text className="text-white font-semibold">Compartir de nuevo</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => setShowFullReport(false)}
+                        className="flex-1 border border-gray-300 rounded-xl py-3 items-center"
+                        activeOpacity={0.7}
+                      >
+                        <Text className="text-gray-700 font-semibold">Cerrar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </CardContent>
+            </Card>
+
+
           </>
         )}
 
@@ -375,14 +500,14 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                 <View className="flex-1">
                   <Text className="text-purple-900 mb-1 font-semibold text-lg">Cuidado emocional</Text>
                   <Text className="text-sm text-purple-800 mb-3">
-                    Detectamos que has reportado estrés en algunos momentos esta semana. Hablar con un profesional puede ayudarte.
+                    Detectamos que reportaste estres esta semana. Hablar con un profesional puede ayudarte.
                   </Text>
                   <TouchableOpacity
                     onPress={handleSchedulePsychologist}
                     className="bg-purple-600 rounded-xl py-3 px-4 items-center"
                     activeOpacity={0.7}
                   >
-                    <Text className="text-white font-semibold">Agendar cita con psicólogo</Text>
+                    <Text className="text-white font-semibold">Agendar cita con psicologo</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -412,10 +537,10 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                       )}
                     </View>
 
-                    {professional.specialization === 'Psicólogo clínico' && (
+                    {professional.specialization === 'Psicologo clinico' && (
                       <View className="mb-4 p-3 bg-purple-50 rounded-xl">
                         <Text className="text-sm text-purple-800 mb-1">
-                          Especialista en manejo de enfermedades crónicas y burnout diabético
+                          Especialista en manejo de enfermedades cronicas y burnout diabetico
                         </Text>
                       </View>
                     )}
@@ -434,14 +559,14 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                         activeOpacity={0.7}
                       >
                         <Text className="text-gray-700 font-semibold">
-                          {professional.nextAppointment ? 'Próxima cita' : 'Agendar cita'}
+                          {professional.nextAppointment ? 'Proxima cita' : 'Agendar cita'}
                         </Text>
                       </TouchableOpacity>
                     </View>
 
                     {professional.nextAppointment && (
                       <Text className="text-sm text-gray-600 mt-3 text-center">
-                        Próxima cita: {professional.nextAppointment}
+                        Proxima cita: {professional.nextAppointment}
                       </Text>
                     )}
 
@@ -450,7 +575,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                         <View className="bg-green-50 rounded-xl p-3 flex-row items-center gap-3">
                           <Ionicons name="checkmark-circle" size={24} color="#10B981" />
                           <View className="flex-1">
-                            <Text className="text-green-900 font-semibold">¡Cita completada!</Text>
+                            <Text className="text-green-900 font-semibold">Cita completada</Text>
                             <Text className="text-sm text-green-700">
                               Completaste tu cita con el {professional.specialization.toLowerCase()} el 15 de diciembre.
                             </Text>
@@ -470,7 +595,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
 
         {selectedTab === 'alerts' && (
           <>
-            {/* Sistema de protección */}
+            {/* Sistema de proteccion */}
             <View className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-4">
               <View className="flex-row items-start gap-3">
                 <View className="w-12 h-12 bg-emerald-100 rounded-full items-center justify-center">
@@ -478,17 +603,17 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                 </View>
                 <View className="flex-1">
                   <Text className="text-emerald-900 mb-1 font-semibold text-lg">
-                    Sistema de protección activo
+                    Sistema de proteccion activo
                   </Text>
                   <Text className="text-sm text-emerald-800">
-                    Tu familia será alertada solo cuando realmente lo necesites
+                    Tu familia sera alertada solo cuando realmente lo necesites
                   </Text>
                 </View>
               </View>
             </View>
 
-            {/* Alertas automáticas */}
-            <Text className="mb-3 text-gray-900 font-semibold text-lg">Alertas automáticas</Text>
+            {/* Alertas automaticas */}
+            <Text className="mb-3 text-gray-900 font-semibold text-lg">Alertas automaticas</Text>
             <View className="gap-3 mb-4">
               {alerts.map((alert) => (
                 <Card key={alert.id}>
@@ -505,7 +630,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                         <Text className="text-sm text-gray-600 mb-2">{alert.condition}</Text>
                         <Text className="text-sm text-gray-700">
                           Notifica a {alert.notifyTo.join(' y ')} {alert.id === '3' ? 'inmediatamente' : alert.id === '2' ? '' : 'inmediatamente'}
-                          {alert.id === '3' && ' y sugiere cita psicológica'}
+                          {alert.id === '3' && ' y sugiere cita psicologica'}
                         </Text>
                       </View>
                       <Switch
@@ -535,7 +660,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                           <Text className="text-emerald-900 font-semibold mb-1">Todo en orden</Text>
                           <Text className="text-sm text-emerald-700 mb-1">{item.message}</Text>
                           <Text className="text-sm text-emerald-600">
-                            ¡Excelente trabajo manteniendo tu control!
+                            Excelente trabajo manteniendo tu control!
                           </Text>
                         </View>
                       </View>
@@ -547,7 +672,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
                         <View className="flex-1">
                           <Text className="text-blue-900 font-semibold mb-1">Sugerencia de apoyo</Text>
                           <Text className="text-sm text-blue-700 mb-3">
-                            {item.message} hace 3 días
+                            {item.message} hace 3 dias
                           </Text>
                           <TouchableOpacity
                             onPress={handleSchedulePsychologist}
@@ -569,3 +694,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
     </View>
   );
 }
+
+
+
+
