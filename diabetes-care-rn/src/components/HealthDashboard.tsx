@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -101,7 +101,7 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
   const emotionalMessage = 'Has reportado sentirte tranquilo en los últimos días. Esto es excelente para tu control de glucosa.';
   
   const [showAddMeasureModal, setShowAddMeasureModal] = useState(false);
-  const [newMeasureType, setNewMeasureType] = useState<'glucose' | 'pressure' | 'weight' | 'steps' | 'sleep'>('glucose');
+  const [newMeasureType, setNewMeasureType] = useState<'glucose' | 'pressure' | 'weight'>('glucose');
   const [newMeasureValue, setNewMeasureValue] = useState('');
   
   const handleAddMeasure = () => {
@@ -116,14 +116,18 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
     
     const value = parseFloat(newMeasureValue);
     if (isNaN(value)) {
-      Alert.alert('Error', 'Por favor ingresa un valor numérico válido');
+      Alert.alert('Error', 'Por favor ingresa un valor numÃ©rico vÃ¡lido');
       return;
     }
     
-    Alert.alert(
-      'Medida agregada',
-      `Has registrado ${newMeasureType === 'glucose' ? `${value} mg/dL` : newMeasureType === 'pressure' ? `${value} mmHg` : newMeasureType === 'weight' ? `${value} kg` : newMeasureType === 'steps' ? `${value} pasos` : `${value} horas`}`
-    );
+    const formattedValue =
+      newMeasureType === 'glucose'
+        ? `${value} mg/dL`
+        : newMeasureType === 'pressure'
+        ? `${value} mmHg`
+        : `${value} kg`;
+
+    Alert.alert('Medida agregada', `Has registrado ${formattedValue}`);
     
     setNewMeasureValue('');
     setShowAddMeasureModal(false);
@@ -177,90 +181,45 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
   };
 
   const renderLineChart = () => {
-    const maxValue = 180;
-    const minValue = 70;
-    const range = maxValue - minValue;
-    const chartHeight = 120;
-
-    // Calcular posiciones Y normalizadas
-    const points = glucoseData.map((data) => {
-      const normalizedValue = (data.value - minValue) / range;
-      const yPercent = 100 - (normalizedValue * 100);
-      return { yPercent, value: data.value, inRange: data.inRange, day: data.day };
-    });
+    const chartHeight = 190;
+    const adaptiveMax = Math.max(180, ...glucoseData.map((item) => item.value));
 
     return (
       <View className="mb-4">
         <Text className="mb-3 text-gray-900 font-semibold text-lg">Tendencia semanal de glucosa</Text>
         <View className="bg-white rounded-xl p-4 border border-gray-200">
-          <View className="h-32 mb-4 relative">
-            {/* Grid de fondo */}
-            <View className="absolute inset-0 flex-col justify-between">
-              {[0, 1, 2, 3].map((i) => (
-                <View key={i} className="h-px bg-gray-100" />
-              ))}
-            </View>
-            
-            {/* Contenedor de puntos y líneas */}
-            <View className="absolute inset-0 flex-row items-end justify-between px-2">
-              {points.map((point, index) => {
-                const prevPoint = index > 0 ? points[index - 1] : null;
-                const color = point.inRange ? '#10B981' : '#EF4444';
-                
-                return (
-                  <View key={index} className="flex-1 items-center relative" style={{ height: chartHeight }}>
-                    {/* Línea conectando puntos - simplificada */}
-                    {prevPoint && (
-                      <View
-                        className="absolute"
-                        style={{
-                          left: '50%',
-                          bottom: `${prevPoint.yPercent}%`,
-                          width: '100%',
-                          height: 2,
-                          backgroundColor: point.inRange && prevPoint.inRange ? '#10B981' : '#EF4444',
-                          transform: [
-                            { translateX: -50 },
-                            {
-                              rotate: `${Math.atan2(
-                                (point.yPercent - prevPoint.yPercent) * (chartHeight / 100),
-                                40
-                              ) * (180 / Math.PI)}deg`
-                            }
-                          ],
-                        }}
-                      />
-                    )}
-                    
-                    {/* Punto en la línea */}
+          <View
+            className="flex-row items-end justify-between px-2 mt-4"
+            style={{ height: chartHeight + 16, paddingTop: 8 }}
+          >
+            {glucoseData.map((data) => {
+              const heightPercent = Math.min(100, Math.max(0, (data.value / adaptiveMax) * 100));
+
+              return (
+                <View key={`${data.day}-${data.value}`} className="flex-1 items-center">
+                  <View
+                    className="w-6 bg-gray-100 rounded-2xl justify-end overflow-hidden"
+                    style={{ height: chartHeight }}
+                  >
                     <View
-                      className="absolute"
                       style={{
-                        bottom: `${point.yPercent}%`,
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        backgroundColor: color,
-                        borderWidth: 2,
-                        borderColor: 'white',
-                        zIndex: 10,
+                        height: `${heightPercent}%`,
+                        backgroundColor: data.inRange ? '#10B981' : '#EF4444',
+                        borderTopLeftRadius: 16,
+                        borderTopRightRadius: 16,
                       }}
                     />
-                    
-                    {/* Etiqueta del día */}
-                    <Text className="absolute -bottom-5 text-xs text-gray-600">
-                      {point.day}
-                    </Text>
                   </View>
-                );
-              })}
-            </View>
+                  <Text className="text-xs text-gray-600 mt-2">{data.day}</Text>
+                  <Text className="text-[11px] text-gray-500">{data.value}</Text>
+                </View>
+              );
+            })}
           </View>
-          
-          <View className="flex-row items-center justify-center gap-4 mt-6">
+          <View className="flex-row items-center justify-center gap-4 mt-4">
             <View className="flex-row items-center gap-2">
               <View className="w-3 h-3 bg-green-500 rounded-full" />
-              <Text className="text-xs text-gray-600">En rango</Text>
+              <Text className="text-xs text-gray-600">En rango (80-130)</Text>
             </View>
             <View className="flex-row items-center gap-2">
               <View className="w-3 h-3 bg-red-500 rounded-full" />
@@ -338,7 +297,7 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
                 <Text className="text-white">180</Text>
               </View>
               <View className="pt-4 border-t border-white/20 flex-row items-center justify-between">
-                <Text className="text-sm text-white">Última medición: Hace 2 horas</Text>
+                <Text className="text-sm text-white">Ãšltima mediciÃ³n: Hace 2 horas</Text>
                 <Ionicons name="trending-down" size={16} color="white" />
               </View>
             </View>
@@ -390,7 +349,7 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
             <View className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4">
               <Text className="mb-3 text-gray-900 font-semibold text-lg">Monitoreo emocional</Text>
               <View className="flex-row items-start gap-3 mb-4">
-                <Text className="text-3xl">😊</Text>
+                <Text className="text-3xl">😁</Text>
                 <View className="flex-1">
                   <Text className="text-gray-900 font-semibold mb-1">
                     Estado emocional: {emotionalState}
@@ -469,7 +428,7 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
               ))}
             </View>
 
-            {/* Sugerencias para mañana */}
+            {/* Sugerencias para maÃ±ana */}
             <View className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <View className="flex-row items-start gap-3">
                 <Text className="text-2xl">💡</Text>
@@ -590,11 +549,9 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
             
             <View className="flex-row flex-wrap gap-2 mb-4">
               {[
-                { type: 'glucose' as const, label: 'Glucosa', icon: '🩸' },
-                { type: 'pressure' as const, label: 'Presión', icon: '❤️' },
-                { type: 'weight' as const, label: 'Peso', icon: '⚖️' },
-                { type: 'steps' as const, label: 'Pasos', icon: '🚶' },
-                { type: 'sleep' as const, label: 'Sueño', icon: '😴' },
+                { type: 'glucose' as const, label: 'Glucosa', icon: 'GL' },
+                { type: 'pressure' as const, label: 'Presion', icon: 'PR' },
+                { type: 'weight' as const, label: 'Peso', icon: 'KG' },
               ].map((item) => (
                 <TouchableOpacity
                   key={item.type}
@@ -631,11 +588,7 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
                   ? 'mg/dL'
                   : newMeasureType === 'pressure'
                   ? 'mmHg'
-                  : newMeasureType === 'weight'
-                  ? 'kg'
-                  : newMeasureType === 'steps'
-                  ? 'pasos'
-                  : 'horas'
+                  : 'kg'
               }
               keyboardType="numeric"
               className="border border-gray-300 rounded-xl px-4 py-3 mb-4"
@@ -654,3 +607,4 @@ export function HealthDashboard({ onBack, onEarnCoins, initialTab }: HealthDashb
     </View>
   );
 }
+

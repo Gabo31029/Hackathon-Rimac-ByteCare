@@ -19,7 +19,10 @@ export function BottomNavigation({ currentScreen, onNavigate, bottomInset = 0 }:
   ];
 
   return (
-    <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200" style={{ paddingBottom: Math.max(bottomInset, 8) }}>
+    <View
+      className="bg-white border-t border-gray-200 shadow-sm"
+      style={{ paddingBottom: Math.max(bottomInset, 10) }}
+    >
       <View className="flex-row items-center justify-around py-2">
         {tabs.map((tab) => {
           const isActive = currentScreen === tab.id;
@@ -49,4 +52,3 @@ export function BottomNavigation({ currentScreen, onNavigate, bottomInset = 0 }:
     </View>
   );
 }
-
