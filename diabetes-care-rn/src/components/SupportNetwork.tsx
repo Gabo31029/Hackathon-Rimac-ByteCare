@@ -370,7 +370,7 @@ export function SupportNetwork({ onBack, onEarnCoins }: SupportNetworkProps) {
             <View className="bg-purple-50 border border-purple-200 rounded-2xl p-5 mb-4">
               <View className="flex-row items-start gap-3 mb-4">
                 <View className="w-12 h-12 bg-purple-100 rounded-full items-center justify-center">
-                  <Ionicons name="brain" size={24} color="#9333EA" />
+                  <Ionicons name="medical" size={24} color="#9333EA" />
                 </View>
                 <View className="flex-1">
                   <Text className="text-purple-900 mb-1 font-semibold text-lg">Cuidado emocional</Text>
